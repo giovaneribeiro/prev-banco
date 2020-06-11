@@ -1,0 +1,24 @@
+version: "2.2"
+services:
+
+    db:
+        image: mysql:5.7
+        restart: always
+        volumes:
+            - ./mysql/develop:/var/lib/mysql
+        ports:
+            - "3306:3306"
+        environment:
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+
+    flyway:
+        image: flyway/flyway:6.2.3
+        command: -schemas=${MYSQL_DATABASE} -user=${MYSQL_USER} -password=${MYSQL_PASSWORD} -connectRetries=60 migrate
+        volumes:
+            - ./flyway/sql:/flyway/sql
+            - ./flyway/conf:/flyway/conf
+        depends_on:
+            - db
